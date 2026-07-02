@@ -1,16 +1,32 @@
-# Deploying this site
+# Deploying this site (GitHub Pages)
 
-Ready-to-deploy static one-pager (see `../design_handoff_bizvoid_onepage_site/README.md` for the design spec). `index.html` is byte-identical to the handoff file; `Dockerfile` + `Caddyfile` exist only so container hosts (Railway) can serve it — static hosts (Netlify, GitHub Pages) can ignore them.
+Self-contained static one-pager. `index.html` is byte-identical to the handoff file (see `../design_handoff_bizvoid_onepage_site/README.md` for the design spec). No build step, no dependencies.
 
-## Railway (project already created: `bizvoid-onepage`)
+This folder is already a git repo with `index.html` committed at root. To publish:
+
 ```sh
 cd site
-railway up --detach     # build + deploy
-railway domain          # generate a public *.up.railway.app URL
+# 1. authenticate gh once (interactive — must be run by a human):
+gh auth login          # choose GitHub.com → HTTPS → auth via browser
+
+# 2. create the repo and push:
+gh repo create bizvoid-onepage --public --source=. --remote=origin --push
+
+# 3. enable Pages from the main branch root:
+gh api -X POST repos/{owner}/bizvoid-onepage/pages \
+  -f 'source[branch]=main' -f 'source[path]=/'
 ```
-Then attach the real secondary domain in the Railway dashboard (Settings → Networking → Custom Domain) and add the CNAME it gives you at your DNS provider.
 
-## GitHub Pages (alternative)
-New repo → commit `index.html` at root → Settings → Pages → deploy from `main` → set custom domain + enable HTTPS.
+Pages then serves at `https://<owner>.github.io/bizvoid-onepage/`.
 
-Keep the page at the domain root (`/`) and serve over HTTPS.
+## Custom domain (the secondary reputation domain)
+```sh
+# write the domain into a CNAME file at repo root, commit, push:
+echo your-secondary-domain.com > CNAME
+git add CNAME && git commit -m "Add custom domain" && git push
+```
+At your DNS provider, point the domain at Pages:
+- apex domain → four A records: 185.199.108/109/110/111.153
+- `www` (or a subdomain) → CNAME to `<owner>.github.io`
+
+Then in the repo Settings → Pages, tick **Enforce HTTPS**. Keep the page at the domain root (`/`) over HTTPS.
