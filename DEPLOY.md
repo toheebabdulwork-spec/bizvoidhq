@@ -9,15 +9,17 @@ cd site
 # 1. authenticate gh once (interactive — must be run by a human):
 gh auth login          # choose GitHub.com → HTTPS → auth via browser
 
-# 2. create the repo and push:
-gh repo create bizvoid-onepage --public --source=. --remote=origin --push
+# 2. create the repo (private) and push:
+gh repo create bizvoidhq --private --source=. --remote=origin --push
 
 # 3. enable Pages from the main branch root:
-gh api -X POST repos/{owner}/bizvoid-onepage/pages \
+gh api -X POST repos/{owner}/bizvoidhq/pages \
   -f 'source[branch]=main' -f 'source[path]=/'
 ```
 
-Pages then serves at `https://<owner>.github.io/bizvoid-onepage/`.
+Note: GitHub Pages on a **private** repo requires GitHub Pro/Team/Enterprise (free plan only serves Pages from public repos). If the account is on the free plan, either make the repo public or upgrade before step 3.
+
+Pages then serves at `https://<owner>.github.io/bizvoidhq/`.
 
 ## Custom domain (the secondary reputation domain)
 ```sh
