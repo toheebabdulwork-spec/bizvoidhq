@@ -4,168 +4,388 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BizVoid — Find. Diagnose. Pitch.</title>
-<meta name="description" content="BizVoid is the all-in-one lead generation platform for freelancers and agencies — find hot leads, audit their websites, send audit-backed pitches, and generate complete client websites.">
+<meta name="description" content="BizVoid is the all-in-one lead generation platform for freelancers and agencies — find hot leads, audit and optimize their websites, send audit-backed pitches, and generate complete client websites.">
 <link rel="canonical" href="https://www.bizvoid.com/">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#0F172A">
+<meta name="theme-color" content="#0A0A0F">
 <meta property="og:title" content="BizVoid — Find. Diagnose. Pitch.">
 <meta property="og:description" content="The all-in-one lead generation platform for freelancers and agencies.">
 <meta property="og:url" content="https://www.bizvoid.com/">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; }
+  :root {
+    --bg: #0A0A0F;
+    --bg-raise: #101018;
+    --line: rgba(148,163,184,0.14);
+    --line-soft: rgba(148,163,184,0.08);
+    --ink: #f1f5f9;
+    --ink-dim: #94a3b8;
+    --ink-faint: #64748b;
+    --teal: #0D9488;
+    --teal-bright: #2DD4BF;
+    --teal-pale: #5EEAD4;
+    --gold: #F59E0B;
+    --amber: #D97706;
+    --sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  html { scroll-behavior: smooth; }
   body {
-    background: #0F172A;
-    color: #e5e7eb;
-    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px;
-    position: relative;
-    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
 
-  /* faint network backdrop, echoes the logo's node motif */
-  .bg-grid {
+  /* ── ambient backdrop: slow-drifting glow fields + faint grid, no WebGL ── */
+  .field {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .field::before, .field::after {
+    content: ""; position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
+    filter: blur(90px); opacity: 0.16;
+  }
+  .field::before { background: var(--teal); top: -20%; left: -15%; animation: drift1 26s ease-in-out infinite; }
+  .field::after { background: var(--gold); bottom: -25%; right: -10%; opacity: 0.10; animation: drift2 32s ease-in-out infinite; }
+  .grid-overlay {
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background-image:
-      radial-gradient(circle at 15% 20%, rgba(45,212,191,0.10) 0%, transparent 45%),
-      radial-gradient(circle at 85% 75%, rgba(245,158,11,0.08) 0%, transparent 45%),
-      linear-gradient(rgba(148,163,184,0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(148,163,184,0.06) 1px, transparent 1px);
-    background-size: auto, auto, 42px 42px, 42px 42px;
+    background-image: linear-gradient(var(--line-soft) 1px, transparent 1px), linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 40%, transparent 85%);
   }
+  @keyframes drift1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(6%, 8%); } }
+  @keyframes drift2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-5%, -6%); } }
 
-  main {
-    position: relative; z-index: 1;
-    max-width: 620px; text-align: center;
-    display: flex; flex-direction: column; align-items: center;
+  main, header, footer, nav { position: relative; z-index: 1; }
+
+  /* ── nav ── */
+  nav.top {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: blur(10px);
+    background: rgba(10,10,15,0.72);
+    border-bottom: 1px solid var(--line);
   }
+  nav.top .in { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .brand svg { display: block; }
+  .brand .wm { font-weight: 700; font-size: 16.5px; letter-spacing: -0.01em; color: var(--ink); }
+  .brand .wm .v { color: var(--teal-bright); }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 13.5px; font-weight: 600; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 9px 16px;
+    text-decoration: none; transition: border-color .18s, background .18s;
+  }
+  .nav-cta:hover { border-color: rgba(45,212,191,0.5); background: rgba(45,212,191,0.06); }
 
+  /* ── hero ── */
+  .hero { padding: 88px 0 60px; text-align: center; }
   .badge {
     display: inline-flex; align-items: center; gap: 8px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
-    color: #5EEAD4;
-    background: rgba(45,212,191,0.08);
-    border: 1px solid rgba(45,212,191,0.25);
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--teal-pale);
+    background: rgba(45,212,191,0.07);
+    border: 1px solid rgba(45,212,191,0.22);
     padding: 6px 14px; border-radius: 999px;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
-  .badge::before {
-    content: ""; width: 6px; height: 6px; border-radius: 50%;
-    background: #2DD4BF; box-shadow: 0 0 8px #2DD4BF;
-  }
-
-  .logo { width: 104px; height: 104px; margin-bottom: 28px; display: block;
-    filter: drop-shadow(0 0 24px rgba(45,212,191,0.25)); }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal-bright); box-shadow: 0 0 8px var(--teal-bright); }
 
   h1 {
-    font-size: clamp(30px, 5vw, 42px); font-weight: 700; letter-spacing: -0.6px;
-    color: #ffffff; margin-bottom: 18px; line-height: 1.18;
+    font-size: clamp(32px, 5.4vw, 54px); font-weight: 700; letter-spacing: -0.02em;
+    line-height: 1.1; margin: 0 auto 20px; max-width: 780px;
   }
-  h1 .accent { color: #2DD4BF; }
+  h1 .grad {
+    background: linear-gradient(100deg, var(--teal-pale) 0%, var(--teal-bright) 35%, var(--gold) 70%, var(--teal-pale) 100%);
+    background-size: 260% auto;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: sheen 7s linear infinite;
+  }
+  @keyframes sheen { to { background-position: -260% center; } }
 
-  p.lead {
-    font-size: 17px; line-height: 1.7; color: #94a3b8; margin-bottom: 40px;
-    text-wrap: pretty; max-width: 520px;
-  }
+  .lead { font-size: 17.5px; color: var(--ink-dim); max-width: 560px; margin: 0 auto 36px; text-wrap: pretty; }
 
-  .pillars {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
-    width: 100%; margin-bottom: 44px;
-  }
-  .pillar {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(148,163,184,0.14);
-    border-radius: 12px; padding: 20px 14px;
-    transition: border-color .2s, transform .2s;
-  }
-  .pillar:hover { border-color: rgba(45,212,191,0.4); transform: translateY(-2px); }
-  .pillar .n {
-    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #F59E0B;
-    letter-spacing: 0.08em; margin-bottom: 8px; display: block;
-  }
-  .pillar .t { font-size: 14.5px; font-weight: 600; color: #e2e8f0; }
-
+  .cta-row { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 64px; }
   .cta {
-    display: inline-flex; align-items: center; gap: 10px;
-    background: linear-gradient(160deg, #0C8275 0%, #0F766E 50%, #0A6E63 100%);
-    color: #ffffff; text-decoration: none;
-    font-size: 15.5px; font-weight: 600;
-    padding: 15px 34px; border-radius: 9px;
-    box-shadow: 0 8px 24px rgba(15,118,110,0.35);
+    display: inline-flex; align-items: center; gap: 9px;
+    background: linear-gradient(160deg, #0f9c8e 0%, #0D9488 55%, #0a6e63 100%);
+    color: #04120f; text-decoration: none; font-weight: 700; font-size: 15.5px;
+    padding: 14px 28px; border-radius: 9px;
+    box-shadow: 0 10px 30px rgba(13,148,136,0.32);
     transition: transform .18s, box-shadow .18s;
   }
-  .cta:hover { transform: translateY(-1px); box-shadow: 0 10px 28px rgba(15,118,110,0.5); }
-  .cta svg { width: 16px; height: 16px; transition: transform .18s; }
-  .cta:hover svg { transform: translateX(3px); }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(13,148,136,0.44); }
+  .cta.ghost {
+    background: transparent; color: var(--ink); box-shadow: none;
+    border: 1px solid var(--line);
+  }
+  .cta.ghost:hover { border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.06); }
+
+  /* ── signal pipeline: this site's own centerpiece animation ── */
+  .pipeline { max-width: 760px; margin: 0 auto; }
+  .pipe-track { position: relative; height: 3px; background: var(--line); border-radius: 3px; margin: 0 22px 22px; }
+  .pipe-track .comet {
+    position: absolute; top: 50%; left: 0; width: 26%; height: 3px; border-radius: 3px;
+    background: linear-gradient(90deg, transparent, var(--teal-bright), var(--gold), transparent);
+    transform: translateY(-50%);
+    animation: travel 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(45,212,191,0.7));
+  }
+  @keyframes travel {
+    0%   { left: -26%; opacity: 0; }
+    8%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+  .pipe-nodes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .pipe-node { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .pipe-node .ring {
+    width: 15px; height: 15px; border-radius: 50%;
+    border: 2px solid var(--line);
+    background: var(--bg-raise);
+    animation: light-up 6s ease-in-out infinite;
+  }
+  .pipe-node:nth-child(1) .ring { animation-delay: 0.1s; }
+  .pipe-node:nth-child(2) .ring { animation-delay: 1.55s; }
+  .pipe-node:nth-child(3) .ring { animation-delay: 3.0s; }
+  .pipe-node:nth-child(4) .ring { animation-delay: 4.45s; }
+  @keyframes light-up {
+    0%, 6% { border-color: var(--line); background: var(--bg-raise); box-shadow: none; }
+    12%, 20% { border-color: var(--teal-bright); background: var(--teal-bright); box-shadow: 0 0 14px rgba(45,212,191,0.8); }
+    30%, 100% { border-color: var(--line); background: var(--bg-raise); box-shadow: none; }
+  }
+  .pipe-node .lab { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); letter-spacing: 0.01em; }
+
+  /* ── section scaffolding ── */
+  section { padding: 76px 0; border-top: 1px solid var(--line-soft); }
+  .sec-head { text-align: center; max-width: 620px; margin: 0 auto 48px; }
+  .kicker { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  h2 { font-size: clamp(24px, 3.4vw, 34px); font-weight: 700; letter-spacing: -0.015em; margin-bottom: 12px; }
+  .sec-lead { color: var(--ink-dim); font-size: 15.5px; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ── feature grid ── */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card {
+    position: relative; overflow: hidden;
+    background: var(--bg-raise); border: 1px solid var(--line); border-radius: 14px;
+    padding: 24px 22px; transition: transform .2s, border-color .2s;
+  }
+  .card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: linear-gradient(90deg, var(--teal-bright), var(--gold));
+    transform: scaleX(0); transform-origin: left; transition: transform .3s;
+  }
+  .card:hover { transform: translateY(-3px); border-color: rgba(45,212,191,0.35); }
+  .card:hover::before { transform: scaleX(1); }
+  .card .icn {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(45,212,191,0.09); border: 1px solid rgba(45,212,191,0.22);
+    margin-bottom: 16px;
+  }
+  .card.new .icn { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.28); }
+  .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+  .card p { font-size: 14px; color: var(--ink-dim); line-height: 1.6; }
+  .card .tag {
+    display: inline-block; margin-bottom: 10px; font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold);
+    background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); padding: 3px 8px; border-radius: 20px;
+  }
+
+  /* ── stat strip ── */
+  .stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .stat {
+    font-family: var(--mono); font-size: 13px; color: var(--ink-dim);
+    border: 1px solid var(--line); border-radius: 10px; padding: 12px 18px;
+    display: flex; flex-direction: column; gap: 4px; align-items: center; min-width: 150px;
+  }
+  .stat b { font-size: 19px; color: var(--teal-pale); font-weight: 700; }
+
+  /* ── closing cta ── */
+  .close { text-align: center; }
+  .close h2 { margin-bottom: 14px; }
 
   footer {
-    position: relative; z-index: 1;
-    margin-top: 56px; font-size: 13px; color: #64748b;
-    display: flex; align-items: center; gap: 8px;
+    border-top: 1px solid var(--line-soft);
+    padding: 32px 0; text-align: center;
+    font-size: 13px; color: var(--ink-faint);
   }
-  footer a { color: #94a3b8; text-decoration: none; }
-  footer a:hover { color: #14B8A6; }
+  footer a { color: var(--ink-dim); text-decoration: none; }
+  footer a:hover { color: var(--teal-bright); }
 
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .pipe-nodes { gap: 4px; }
+    .pipe-node .lab { font-size: 9.5px; }
+  }
   @media (max-width: 520px) {
-    .pillars { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+    .hero { padding: 64px 0 44px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .field::before, .field::after, h1 .grad, .pipe-track .comet, .pipe-node .ring { animation: none !important; }
+    .reveal { opacity: 1; transform: none; transition: none; }
   }
 </style>
 </head>
 <body>
-<div class="bg-grid" aria-hidden="true"></div>
-<main>
-  <span class="badge">BizVoid LLC &middot; est. 2026</span>
+<div class="field" aria-hidden="true"></div>
+<div class="grid-overlay" aria-hidden="true"></div>
 
-  <svg class="logo" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BizVoid logo">
-    <g stroke="#2DD4BF" stroke-width="1.6" stroke-linecap="round" stroke-opacity="0.55">
-      <line x1="24" y1="38" x2="60" y2="22"/><line x1="60" y1="22" x2="102" y2="40"/>
-      <line x1="24" y1="38" x2="34" y2="76"/><line x1="34" y1="76" x2="72" y2="60"/>
-      <line x1="60" y1="22" x2="72" y2="60"/><line x1="72" y1="60" x2="102" y2="40"/>
-      <line x1="72" y1="60" x2="106" y2="90"/><line x1="34" y1="76" x2="52" y2="102"/>
-      <line x1="52" y1="102" x2="72" y2="60"/><line x1="52" y1="102" x2="106" y2="90"/>
-      <line x1="102" y1="40" x2="106" y2="90"/>
-    </g>
-    <circle cx="24" cy="38" r="7" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="24" cy="38" r="4.5" fill="#5EEAD4"/>
-    <circle cx="60" cy="22" r="7.5" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="60" cy="22" r="5" fill="#5EEAD4"/>
-    <circle cx="34" cy="76" r="7" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="34" cy="76" r="4.5" fill="#5EEAD4"/>
-    <circle cx="72" cy="60" r="8.5" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="72" cy="60" r="6" fill="#5EEAD4"/>
-    <circle cx="52" cy="102" r="7" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="52" cy="102" r="4.5" fill="#5EEAD4"/>
-    <circle cx="106" cy="90" r="7" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="106" cy="90" r="4.5" fill="#5EEAD4"/>
-    <circle cx="102" cy="40" r="11.5" fill="#F59E0B" fill-opacity="0.16"/>
-    <circle cx="102" cy="40" r="7.5" fill="#F59E0B"/>
-    <circle cx="102" cy="40" r="3.15" fill="#fff" fill-opacity="0.9"/>
-  </svg>
-
-  <h1>The company behind <span class="accent">BizVoid</span></h1>
-
-  <p class="lead">BizVoid LLC builds the all-in-one lead generation platform freelancers and agencies use to find businesses with no website (or a broken one), audit them in seconds, and turn that audit into a pitch that closes.</p>
-
-  <div class="pillars">
-    <div class="pillar"><span class="n">01</span><span class="t">Find</span></div>
-    <div class="pillar"><span class="n">02</span><span class="t">Diagnose</span></div>
-    <div class="pillar"><span class="n">03</span><span class="t">Pitch</span></div>
+<nav class="top">
+  <div class="wrap in">
+    <a class="brand" href="#top">
+      <svg width="30" height="30" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BizVoid logo">
+        <g stroke="#2DD4BF" stroke-width="1.6" stroke-linecap="round" stroke-opacity="0.55">
+          <line x1="24" y1="38" x2="60" y2="22"/><line x1="60" y1="22" x2="102" y2="40"/>
+          <line x1="24" y1="38" x2="34" y2="76"/><line x1="34" y1="76" x2="72" y2="60"/>
+          <line x1="60" y1="22" x2="72" y2="60"/><line x1="72" y1="60" x2="102" y2="40"/>
+          <line x1="72" y1="60" x2="106" y2="90"/><line x1="34" y1="76" x2="52" y2="102"/>
+          <line x1="52" y1="102" x2="72" y2="60"/><line x1="52" y1="102" x2="106" y2="90"/>
+          <line x1="102" y1="40" x2="106" y2="90"/>
+        </g>
+        <circle cx="24" cy="38" r="7" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="24" cy="38" r="4.5" fill="#5EEAD4"/>
+        <circle cx="60" cy="22" r="7.5" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="60" cy="22" r="5" fill="#5EEAD4"/>
+        <circle cx="34" cy="76" r="7" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="34" cy="76" r="4.5" fill="#5EEAD4"/>
+        <circle cx="72" cy="60" r="8.5" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="72" cy="60" r="6" fill="#5EEAD4"/>
+        <circle cx="52" cy="102" r="7" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="52" cy="102" r="4.5" fill="#5EEAD4"/>
+        <circle cx="106" cy="90" r="7" fill="#5EEAD4" fill-opacity="0.1"/><circle cx="106" cy="90" r="4.5" fill="#5EEAD4"/>
+        <circle cx="102" cy="40" r="11.5" fill="#F59E0B" fill-opacity="0.16"/>
+        <circle cx="102" cy="40" r="7.5" fill="#F59E0B"/>
+        <circle cx="102" cy="40" r="3.15" fill="#fff" fill-opacity="0.9"/>
+      </svg>
+      <span class="wm">biz<span class="v">v</span>oid</span>
+    </a>
+    <a class="nav-cta" href="https://www.bizvoid.com/">Open the app <span aria-hidden="true">→</span></a>
   </div>
+</nav>
 
-  <a class="cta" href="https://www.bizvoid.com/">
-    Visit the product at bizvoid.com
-    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </a>
+<main>
+  <header class="hero" id="top">
+    <div class="wrap">
+      <span class="badge"><span class="dot"></span>BizVoid LLC &middot; company &amp; product overview</span>
+      <h1>The full cold-outreach workflow, <span class="grad">built as one product.</span></h1>
+      <p class="lead">BizVoid is the lead-generation platform freelancers and agencies use to find businesses that need help, prove it with data, and pitch — or build — the fix. This page is the company's home base; the product lives at bizvoid.com.</p>
+      <div class="cta-row">
+        <a class="cta" href="https://www.bizvoid.com/">Try BizVoid free <span aria-hidden="true">→</span></a>
+        <a class="cta ghost" href="#features">See what it does</a>
+      </div>
 
-  <footer>&copy; 2026 BizVoid LLC &middot; <a href="https://www.bizvoid.com/">bizvoid.com</a></footer>
+      <div class="pipeline reveal">
+        <div class="pipe-track"><div class="comet"></div></div>
+        <div class="pipe-nodes">
+          <div class="pipe-node"><span class="ring"></span><span class="lab">FIND</span></div>
+          <div class="pipe-node"><span class="ring"></span><span class="lab">DIAGNOSE</span></div>
+          <div class="pipe-node"><span class="ring"></span><span class="lab">PITCH</span></div>
+          <div class="pipe-node"><span class="ring"></span><span class="lab">BUILD</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="kicker">What BizVoid does</div>
+        <h2>Six tools. <span style="color:var(--teal-bright)">One workflow.</span></h2>
+        <p class="sec-lead">Every stage of finding and winning a local-business client, in a single product.</p>
+      </div>
+      <div class="grid">
+
+        <div class="card reveal">
+          <div class="icn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="6.5" stroke="#2DD4BF" stroke-width="1.8"/><line x1="15" y1="15" x2="20.5" y2="20.5" stroke="#2DD4BF" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <h3>Find</h3>
+          <p>Search any city and surface local businesses with no website, or a site that's quietly costing them customers. Filter by category, zip code, and "no website only."</p>
+        </div>
+
+        <div class="card reveal">
+          <div class="icn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 20a8 8 0 1 1 16 0" stroke="#2DD4BF" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="20" x2="16" y2="12" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="20" r="1.4" fill="#2DD4BF"/></svg></div>
+          <h3>Diagnose &amp; Optimize</h3>
+          <p>A live audit grades performance, mobile, SEO, accessibility and security into one flaw score, then Optimize applies real fixes: security headers, schema, meta tags, sitemaps, even on sites BizVoid didn't build.</p>
+        </div>
+
+        <div class="card reveal">
+          <div class="icn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 11l17-8-7 17-2.5-6.5L3 11z" stroke="#2DD4BF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Pitch</h3>
+          <p>AI reads the audit and drafts a cold email that names the exact problem it found and ties it to lost revenue. Grounded in real data, never a generic template.</p>
+        </div>
+
+        <div class="card reveal">
+          <div class="icn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#2DD4BF" stroke-width="1.8"/><path d="M3 9h18" stroke="#2DD4BF" stroke-width="1.8"/><circle cx="6.5" cy="7" r="0.9" fill="#2DD4BF"/></svg></div>
+          <h3>Render</h3>
+          <p>Turn the audit into a live, working HTML mockup of the prospect's redesigned site: a real preview they can open, built from their actual brand and content.</p>
+        </div>
+
+        <div class="card new reveal">
+          <span class="tag">New</span>
+          <div class="icn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#F59E0B" stroke-width="1.8"/><rect x="13" y="3" width="8" height="5" rx="1.5" stroke="#F59E0B" stroke-width="1.8"/><rect x="13" y="10" width="8" height="11" rx="1.5" stroke="#F59E0B" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="#F59E0B" stroke-width="1.8"/></svg></div>
+          <h3>AI Site Builder</h3>
+          <p>Generate a complete, ready-to-hand-off website from any lead: real category, services, hours, reviews and photos pulled from Google, not a generic template. Single- or multi-page, live-previewed, exportable.</p>
+        </div>
+
+        <div class="card reveal">
+          <div class="icn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8 4L3 12l5 8M16 4l5 8-5 8" stroke="#2DD4BF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>MCP &amp; API</h3>
+          <p>Connect BizVoid to Claude, GPT, Cursor, or any MCP-compatible agent. One plain-English prompt finds leads, runs audits, and drafts pitches without opening the dashboard.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="stats reveal">
+        <div class="stat"><b>0–100</b>flaw score per audit</div>
+        <div class="stat"><b>&lt;10 min</b>cold search to pitch</div>
+        <div class="stat"><b>1 / multi</b>page AI-built sites</div>
+        <div class="stat"><b>Claude · GPT</b>via MCP</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="close">
+    <div class="wrap reveal">
+      <h2>Ready to find your next client?</h2>
+      <p class="sec-lead" style="margin-bottom:28px">The full product — scanning, pitching, and the AI site builder — lives at bizvoid.com.</p>
+      <a class="cta" href="https://www.bizvoid.com/">Visit bizvoid.com <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
 </main>
+
+<footer>&copy; 2026 BizVoid LLC &middot; <a href="https://www.bizvoid.com/">bizvoid.com</a></footer>
+
+<script>
+  if ('IntersectionObserver' in window) {
+    var els = document.querySelectorAll('.reveal');
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function (el, i) {
+      el.style.transitionDelay = Math.min(i % 6, 5) * 60 + 'ms';
+      io.observe(el);
+    });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+  }
+</script>
 </body>
 </html>
